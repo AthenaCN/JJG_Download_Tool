@@ -5,6 +5,7 @@ import time
 import logging
 
 logging.basicConfig(level=logging.INFO)
+logging.StreamHandler().setLevel(logging.INFO)
 
 # Welcome
 
@@ -12,13 +13,13 @@ def welcome():
     print('--------------------程序开始--------------------')
     print('仅供学习参考；产生任何后果由用户承担')
     print('继续使用即代表同意上述声明')
-    choice = input("是否同意上述声明？ (y/n) ").lower()
+    choice = input('是否同意上述声明？ (y/n) ').lower()
     while choice not in ['y', 'n']:
-        choice = input("输入无效，请重新输入是否同意上述声明？ (y/n) ").lower()
+        choice = input('输入无效，请重新输入是否同意上述声明？ (y/n) ').lower()
     if choice == 'y':
-        input("按下回车键以继续...\n")
+        return None
     else:
-        print("已取消操作")
+        input('按任意键退出...')
         exit()
 
 welcome()
@@ -43,7 +44,7 @@ def inputandparseurl():
 
 std_type, std_no, raw_url = inputandparseurl()
 
-# Generate Headers for the Session
+# Generate Session
 
 def generatesession():
     headers = {
@@ -64,6 +65,8 @@ def generatesession():
 session, response = generatesession()
 Myfoxit = re.findall('var enc = "([^"]*)"', response.text)
 token = re.findall('var rc = "([^"]*)"', response.text)
+
+# Get PDF Session Response
 
 def getpdfresponse():
     url = f'http://jjg.spc.org.cn/resmea/view/onlinereading?token={token[0]}&Myfoxit={Myfoxit[0]}'
@@ -95,8 +98,25 @@ def main():
 
 main()
 
-logging.debug('调试日志')
-logging.info('消息日志')
-logging.warning('警告日志')
-logging.error('错误日志')
-logging.critical('严重错误日志')
+while True:
+    try:
+        choice = input('是否继续下载？ (y/n) ').lower()
+        while choice not in ['y', 'n']:
+            choice = input('输入无效，请重新输入是否同意上述声明？ (y/n) ').lower()
+        if choice == 'y':
+            std_type, std_no, raw_url = inputandparseurl()
+            session, response = generatesession()
+            Myfoxit = re.findall('var enc = "([^"]*)"', response.text)
+            token = re.findall('var rc = "([^"]*)"', response.text)
+            main()
+        else:
+            print('--------------------程序结束--------------------')
+            logging.debug('调试日志')
+            logging.info('消息日志')
+            logging.warning('警告日志')
+            logging.error('错误日志')
+            logging.critical('严重错误日志')
+            input('按任意键退出...')
+            exit()
+    except KeyboardInterrupt:
+        breakpoint()
